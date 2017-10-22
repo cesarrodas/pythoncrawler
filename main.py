@@ -5,8 +5,13 @@ import requests
 from bs4 import BeautifulSoup
 
 start_url = "https://en.wikipedia.org/wiki/React_(JavaScript_library)"
-#start_url = "https://en.wikipedia.org/wiki/Special:Random"
 start = input("Enter a topic to learn: ")
+saving = input("Did you want to save your search? (y|n) : ")
+if(saving == "y" or saving == "yes"):
+    file_name = input("Enter a file name for this search: ") + ".txt"
+    saving = True
+else:
+    saving = False
 
 
 target_url = "https://en.wikipedia.org/wiki/Philosophy"
@@ -16,14 +21,29 @@ def related_articles():
     print(search_url)
     response = requests.get(search_url).json()
     articles = response['query']['pages'].keys()
-    for article in articles:
-        print("==========================================\n")
-        print(response['query']['pages'][article]['title'])
-        print("\n")
-        print("Description: ", response['query']['pages'][article]['extract'])
+    if(saving):
+        try:
+            search_file = open(file_name, "w")
+        except:
+            print("could not open the file")
 
-    #print(response['query']['pages'].keys())
-    #print(response['query']['pages']['42871'])
+    for article in articles:
+        if(saving):
+            try:
+                search_file.write("==========================================" + "\n\n")
+                search_file.write(response['query']['pages'][article]['title'] + "\n\n")
+                search_file.write("http://en.wikipedia.org/?curid=" + article + "\n\n")
+                search_file.write("Description: " + response['query']['pages'][article]['extract'] + "\n\n")
+            except Exception as e:
+                print(e)
+        print("\n")
+        print(response['query']['pages'][article]['title'])
+        print("http://en.wikipedia.org/?curid=" + article)
+    if(saving):
+        try:
+            search_file.close()
+        except:
+            print("could not close the file")
 
 def find_first_link(url):
     response = requests.get(url)
